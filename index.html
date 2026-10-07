@@ -26,7 +26,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
-                var swCode = "self.addEventListener('install', function(e) { e.waitUntil(caches.open('golf-v1').then(function(cache) { return cache.addAll(['./']); })); }); self.addEventListener('fetch', function(e) { e.respondWith(caches.match(e.request).then(function(res) { return res || fetch(e.request); })); });";
+                var swCode = "self.addEventListener('install', function(e) { e.waitUntil(caches.open('golf-v3').then(function(cache) { return cache.addAll(['./']); })); }); self.addEventListener('fetch', function(e) { e.respondWith(caches.match(e.request).then(function(res) { return res || fetch(e.request); })); });";
                 var blob = new Blob([swCode], { type: 'text/javascript' });
                 var swUrl = URL.createObjectURL(blob);
                 navigator.serviceWorker.register(swUrl).catch(function(err) { console.log('SW registration failed', err); });
@@ -35,7 +35,7 @@
 
         var gameModeInstructions = {
             'Bingo Bango Bongo': 'Points based game: 1 pt for first on green (Bingo), 1 pt for closest to pin (Bango), 1 pt for first in hole (Bongo).',
-            'Wolf': 'A rotation game (min 3 players). If Lone Wolf wins, they get 2 pts + carryover. If they lose, other players get 2 pts + carryover. If tie, carryover increases by 1.',
+            'Wolf': 'A rotation game (min 3 players). Lone Wolf win awards 2 pts + carryover. Lone Wolf loss awards opponents 2 pts + carryover. Ties add +1 carryover. Partner selection is mandatory.',
             'Vegas': 'Teams combined. 4 players (2v2) or 3 players (rotating partner). Winning team gets positive difference. Birdie toggle flips opposing team score.',
             'Stableford': 'Points: 1 for bogey, 2 for par, 3 for birdie, 4 for eagle, 5 for hole-in-one.',
             'Nines': 'A 3-player game where 9 points are awarded per hole (5-3-1 distribution).'
@@ -57,7 +57,8 @@
             holePars: Array(18).fill(4),
             vegasBirdies: { team1: false, team2: false, p1: false, p2: false, p3: false },
             showInfo: null,
-            showHomeConfirm: false
+            showHomeConfirm: false,
+            errorMessage: null
         };
 
         function saveToStorage() {
@@ -191,13 +192,13 @@
 
             var wolfBoxHTML = '';
             if (state.gameMode === 'Wolf' && currentWolf) {
-                var partnersHTML = '<button onclick="state.wolfPartner = \'lone\'; render();" class="px-3 py-2 rounded-lg text-xs font-bold transition-colors ' + (state.wolfPartner === 'lone' ? 'bg-amber-600 text-white shadow-lg' : 'bg-gray-800 text-gray-400 border border-gray-700') + '">Lone Wolf</button>';
+                var partnersHTML = '<button onclick="state.wolfPartner = \'lone\'; state.errorMessage = null; render();" class="px-3 py-2 rounded-lg text-xs font-bold transition-colors ' + (state.wolfPartner === 'lone' ? 'bg-amber-600 text-white shadow-lg' : 'bg-gray-800 text-gray-400 border border-gray-700') + '">Lone Wolf</button>';
                 state.players.filter(function(p) { return p.id !== currentWolf.id; }).forEach(function(p) {
-                    partnersHTML += '<button onclick="state.wolfPartner = \'' + p.id + '\'; render();" class="px-3 py-2 rounded-lg text-xs font-bold transition-colors ' + (state.wolfPartner === p.id ? 'bg-amber-600 text-white shadow-lg' : 'bg-gray-800 text-gray-400 border border-gray-700') + '">Partner: ' + escapeHTML(p.name) + '</button>';
+                    partnersHTML += '<button onclick="state.wolfPartner = \'' + p.id + '\'; state.errorMessage = null; render();" class="px-3 py-2 rounded-lg text-xs font-bold transition-colors ' + (state.wolfPartner === p.id ? 'bg-amber-600 text-white shadow-lg' : 'bg-gray-800 text-gray-400 border border-gray-700') + '">Partner: ' + escapeHTML(p.name) + '</button>';
                 });
                 wolfBoxHTML = '<div class="bg-amber-900/30 border border-amber-800 p-3 rounded-xl mb-4">' +
                     '<div class="flex justify-center items-center gap-3 mb-3">' +
-                        '<h3 class="text-amber-400 font-black uppercase tracking-widest text-xs flex items-center gap-1.5"><span>🐺</span> ' + escapeHTML(currentWolf.name) + '\'s Choice</h3>' +
+                        '<h3 class="text-amber-400 font-black uppercase tracking-widest text-xs flex items-center gap-1.5"><span>🐺</span> ' + escapeHTML(currentWolf.name) + '\'s Choice (Required)</h3>' +
                         (state.carryover > 0 ? '<span class="bg-red-600 text-white text-[10px] font-black px-2 py-0.5 rounded animate-pulse">+' + state.carryover + ' Carry</span>' : '') +
                     '</div>' +
                     '<div class="grid grid-cols-2 gap-2">' + partnersHTML + '</div>' +
@@ -265,6 +266,7 @@
                     '</div>' +
                     (state.gameMode === 'Stableford' ? '<div class="flex flex-col items-center mb-4 bg-gray-800/50 p-3 rounded-xl border border-gray-700"><span class="text-gray-400 font-bold text-[10px] uppercase tracking-widest mb-2">Adjust Hole Par</span><div class="flex items-center gap-4 bg-gray-900 p-1.5 rounded-lg border border-gray-700 shadow-inner"><button onclick="adjustPar(-1)" class="w-10 h-10 bg-gray-800 rounded text-white font-black text-xl flex items-center justify-center hover:bg-gray-700">-</button><span class="w-10 text-center text-2xl text-white font-black">' + state.holePars[state.currentHole - 1] + '</span><button onclick="adjustPar(1)" class="w-10 h-10 bg-gray-800 rounded text-white font-black text-xl flex items-center justify-center hover:bg-gray-700">+</button></div></div>' : '') +
                     wolfBoxHTML + bbbBoxHTML +
+                    (state.errorMessage ? '<div class="bg-red-900/40 border border-red-700 text-red-300 text-xs font-bold p-2.5 rounded-xl mb-3 text-center">' + state.errorMessage + '</div>' : '') +
                     '<div class="space-y-2">' + playersHTML + '</div>' +
                 '</div>' +
                 '<div class="p-3 bg-gray-900 border-t border-gray-800 shrink-0">' +
@@ -441,6 +443,7 @@
             state.bbbWinners = { bingo: null, bango: null, bongo: null };
             state.wolfPartner = null;
             state.vegasBirdies = { team1: false, team2: false, p1: false, p2: false, p3: false };
+            state.errorMessage = null;
             render();
         }
 
@@ -465,6 +468,7 @@
             state.wolfPartner = null;
             state.carryover = 0;
             state.vegasBirdies = { team1: false, team2: false, p1: false, p2: false, p3: false };
+            state.errorMessage = null;
             state.view = 'play';
             render();
         }
@@ -515,8 +519,8 @@
             } else if (state.gameMode === 'Wolf' && state.numPlayers >= 3) {
                 var wolfIdx = getWolfIndexForHole(state.currentHole, state.players);
                 var currentWolfId = state.players[wolfIdx].id;
-                var activePartner = state.wolfPartner || state.players.filter(function(p) { return p.id !== currentWolfId; })[state.players.length - 2].id;
-                
+                var activePartner = state.wolfPartner;
+
                 if (activePartner === 'lone') {
                     var wolfScore = state.tempScores[currentWolfId];
                     var bestPackScore = Math.min.apply(null, state.players.filter(function(p) { return p.id !== currentWolfId; }).map(function(p) { return state.tempScores[p.id]; }));
@@ -561,10 +565,38 @@
             return { pts: pts, resultIsTie: resultIsTie };
         }
 
+        function recalculateWolfCarryovers() {
+            if (state.gameMode !== 'Wolf') return;
+            var currentCarry = 0;
+            for (var i = 0; i < 18; i++) {
+                var hNum = ((state.startingHole - 1 + i) % 18) + 1;
+                var isPlayed = state.players[0].scores[hNum - 1] !== null;
+                if (!isPlayed) continue;
+
+                var wolfIdx = getWolfIndexForHole(hNum, state.players);
+                var wolfId = state.players[wolfIdx].id;
+                var wolfSc = state.players.find(function(p) { return p.id === wolfId; }).scores[hNum - 1];
+                var bestOther = Math.min.apply(null, state.players.filter(function(p) { return p.id !== wolfId; }).map(function(p) { return p.scores[hNum - 1]; }));
+                
+                if (wolfSc === bestOther) {
+                    currentCarry += 1;
+                } else {
+                    currentCarry = 0;
+                }
+            }
+            state.carryover = currentCarry;
+        }
+
         function handleSaveHole() {
+            if (state.gameMode === 'Wolf' && !state.wolfPartner) {
+                state.errorMessage = 'Please select a partner or Lone Wolf before saving!';
+                render();
+                return;
+            }
+            state.errorMessage = null;
+
             var calc = calculatePoints();
             var pts = calc.pts;
-            var resultIsTie = calc.resultIsTie;
 
             state.players = state.players.map(function(p) {
                 var newScores = p.scores.slice();
@@ -575,8 +607,7 @@
             });
 
             if (state.gameMode === 'Wolf') {
-                if (resultIsTie) state.carryover += 1;
-                else state.carryover = 0;
+                recalculateWolfCarryovers();
             }
 
             var unplayedHoles = state.players[0].scores.filter(function(s) { return s === null; }).length;
