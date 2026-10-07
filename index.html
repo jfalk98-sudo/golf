@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Golf Scorecard App</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -17,9 +17,9 @@
         .row-pts td { background: #581c87 !important; color: #f0abfc; font-weight: 900; }
     </style>
 </head>
-<body class="h-screen overflow-hidden flex justify-center bg-black selection:bg-green-500/30">
+<body class="h-[100svh] overflow-hidden flex justify-center bg-black selection:bg-green-500/30">
 
-    <div class="w-full max-w-md bg-[#030712] relative flex flex-col shadow-2xl h-[100dvh] sm:h-[90vh] sm:my-auto sm:rounded-[2.5rem] sm:border-[8px] sm:border-gray-900 overflow-hidden" id="app">
+    <div class="w-full max-w-md bg-[#030712] relative flex flex-col shadow-2xl h-[100svh] sm:h-[90vh] sm:my-auto sm:rounded-[2.5rem] sm:border-[8px] sm:border-gray-900 overflow-hidden" id="app">
         <!-- Application container rendered dynamically via script -->
     </div>
 
@@ -27,7 +27,7 @@
         const gameModeInstructions = {
             'Bingo Bango Bongo': 'Points based game: 1 pt for first on green (Bingo), 1 pt for closest to pin (Bango), 1 pt for first in hole (Bongo).',
             'Wolf': 'A rotation game (min 3 players) where one player is the "Wolf". The Wolf hits first, watches each player hit, and must pick their partner before the next player hits (or declare Lone Wolf right after hitting). For the final two holes with entries, the Wolf is selected by the lowest total accumulated points so far (with ties broken by natural rotation order).',
-            'Vegas': 'Supports 3 or 4 players. For 4 players, 2 vs 2 teams. For 3 players, one player rotates each hole to act as a partner for the other two. Scores are combined (lowest score first, e.g., 4 and 5 = 45). Winning team gets the positive difference. If a team makes a birdie or better, the opposing team score combination is flipped unless both teams birdie.',
+            'Vegas': 'Supports 3 or 4 players. Team scores are combined (lowest score first, e.g., 4 and 5 = 45). Winning team gets the positive difference. If a team makes a birdie or better, the opposing team score combination is flipped unless both teams birdie.',
             'Stableford': 'A scoring system that rewards good holes and forgives bad ones. Points: 1 for bogey, 2 for par, 3 for birdie, 4 for eagle, and 5 for a hole-in-one.',
             'Nines': 'A 3-player game where 9 points are awarded per hole. Lowest score gets 5, middle gets 3, highest gets 1. Win the hole by 2+ strokes to sweep all 9 points!'
         };
@@ -64,22 +64,22 @@
         }
 
         function renderHeader() {
-            return '<header class="bg-gray-900 p-4 flex justify-between items-center border-b border-gray-800 shrink-0 z-50">' +
+            return '<header class="bg-gray-900 p-3 flex justify-between items-center border-b border-gray-800 shrink-0 z-50">' +
                 '<div class="flex items-center gap-2">' +
                     '<div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center shadow-lg shadow-green-500/20">' +
                         '<div class="w-3 h-3 bg-white rounded-full"></div>' +
                     '</div>' +
                     '<div>' +
-                        '<h1 class="text-white font-black tracking-tight leading-tight">GolfApp</h1>' +
+                        '<h1 class="text-white font-black tracking-tight leading-tight text-sm">GolfApp</h1>' +
                         '<p class="text-gray-400 text-[10px] uppercase tracking-widest font-bold">' + state.gameMode + '</p>' +
                     '</div>' +
                 '</div>' +
                 '<div class="flex gap-2">' +
                     (state.view !== 'setup' ? 
                         '<button onclick="state.showHomeConfirm = true; render();" class="p-2 bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 active:scale-95 transition-colors">' +
-                            '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>' +
+                            '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>' +
                         '</button>' +
-                        '<button onclick="state.view = state.view === \'play\' ? \'scorecard\' : \'play\'; render();" class="bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-gray-700 active:scale-95 transition-colors">' +
+                        '<button onclick="state.view = state.view === \'play\' ? \'scorecard\' : \'play\'; render();" class="bg-gray-800 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-gray-700 active:scale-95 transition-colors">' +
                             (state.view === 'play' ? 'Scorecard' : 'Play') +
                         '</button>'
                     : '') +
@@ -96,56 +96,56 @@
 
         function renderSetupView() {
             var modesHTML = Object.keys(gameModeInstructions).map(function(mode) {
-                return '<div class="flex gap-2 mb-3">' +
-                    '<button onclick="handleGameModeChange(\'' + mode + '\')" class="flex-1 flex justify-between items-center p-4 rounded-2xl font-bold transition-all ' + (state.gameMode === mode ? 'bg-green-600 text-white shadow-lg' : 'bg-gray-800 text-gray-400 hover:bg-gray-700') + '">' +
+                return '<div class="flex gap-2 mb-2">' +
+                    '<button onclick="handleGameModeChange(\'' + mode + '\')" class="flex-1 flex justify-between items-center p-3 rounded-xl font-bold text-sm transition-all ' + (state.gameMode === mode ? 'bg-green-600 text-white shadow-lg' : 'bg-gray-800 text-gray-400 hover:bg-gray-700') + '">' +
                         mode +
-                        (state.gameMode === mode ? '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>' : '') +
+                        (state.gameMode === mode ? '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>' : '') +
                     '</button>' +
-                    '<button onclick="state.showInfo = \'' + mode + '\'; render();" class="w-14 h-14 bg-gray-800 rounded-2xl flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700 active:scale-95 transition-all">' +
-                        '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>' +
+                    '<button onclick="state.showInfo = \'' + mode + '\'; render();" class="w-11 h-11 bg-gray-800 rounded-xl flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700 active:scale-95 transition-all">' +
+                        '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>' +
                     '</button>' +
                 '</div>';
             }).join('');
 
             var numPlayersHTML = [2, 3, 4].map(function(num) {
                 var disabled = (state.gameMode === 'Wolf' && num < 3) || (state.gameMode === 'Vegas' && num !== 3 && num !== 4) || (state.gameMode === 'Nines' && num !== 3);
-                return '<button ' + (disabled ? 'disabled' : '') + ' onclick="state.numPlayers = ' + num + '; render();" class="flex-1 py-4 rounded-2xl font-black text-2xl transition-all ' + (disabled ? 'opacity-30 bg-gray-800 text-gray-600' : (state.numPlayers === num ? 'bg-blue-600 text-white shadow-lg' : 'bg-gray-800 text-gray-400 hover:bg-gray-700')) + '">' +
+                return '<button ' + (disabled ? 'disabled' : '') + ' onclick="state.numPlayers = ' + num + '; render();" class="flex-1 py-3 rounded-xl font-black text-xl transition-all ' + (disabled ? 'opacity-30 bg-gray-800 text-gray-600' : (state.numPlayers === num ? 'bg-blue-600 text-white shadow-lg' : 'bg-gray-800 text-gray-400 hover:bg-gray-700')) + '">' +
                     num +
                 '</button>';
             }).join('');
 
             var namesHTML = '';
             if (state.gameMode === 'Vegas' && state.numPlayers === 4) {
-                namesHTML = '<div class="bg-blue-900/10 border border-blue-900/50 p-4 rounded-2xl mb-4 shadow-lg">' +
-                    '<div class="text-center text-xs font-black mb-4 text-blue-400 uppercase tracking-widest">Team 1</div>' +
-                    '<div class="flex items-center bg-blue-900/30 p-3 rounded-xl mb-2 border border-blue-800"><input type="text" placeholder="Player 1" value="' + escapeHTML(state.playerNames[0]) + '" oninput="state.playerNames[0] = this.value" class="bg-transparent text-white font-bold text-lg w-full outline-none"/></div>' +
-                    '<div class="flex items-center bg-blue-900/30 p-3 rounded-xl border border-blue-800"><input type="text" placeholder="Player 2" value="' + escapeHTML(state.playerNames[1]) + '" oninput="state.playerNames[1] = this.value" class="bg-transparent text-white font-bold text-lg w-full outline-none"/></div>' +
+                namesHTML = '<div class="bg-blue-900/10 border border-blue-900/50 p-3 rounded-xl mb-3 shadow-lg">' +
+                    '<div class="text-center text-[10px] font-black mb-2 text-blue-400 uppercase tracking-widest">Team 1</div>' +
+                    '<div class="flex items-center bg-blue-900/30 p-2.5 rounded-lg mb-2 border border-blue-800"><input type="text" placeholder="Player 1" value="' + escapeHTML(state.playerNames[0]) + '" oninput="state.playerNames[0] = this.value" class="bg-transparent text-white font-bold text-sm w-full outline-none"/></div>' +
+                    '<div class="flex items-center bg-blue-900/30 p-2.5 rounded-lg border border-blue-800"><input type="text" placeholder="Player 2" value="' + escapeHTML(state.playerNames[1]) + '" oninput="state.playerNames[1] = this.value" class="bg-transparent text-white font-bold text-sm w-full outline-none"/></div>' +
                 '</div>' +
-                '<div class="bg-emerald-900/10 border border-emerald-900/50 p-4 rounded-2xl shadow-lg">' +
-                    '<div class="text-center text-xs font-black mb-4 text-emerald-400 uppercase tracking-widest">Team 2</div>' +
-                    '<div class="flex items-center bg-emerald-900/30 p-3 rounded-xl mb-2 border border-emerald-800"><input type="text" placeholder="Player 3" value="' + escapeHTML(state.playerNames[2]) + '" oninput="state.playerNames[2] = this.value" class="bg-transparent text-white font-bold text-lg w-full outline-none"/></div>' +
-                    '<div class="flex items-center bg-emerald-900/30 p-3 rounded-xl border border-emerald-800"><input type="text" placeholder="Player 4" value="' + escapeHTML(state.playerNames[3]) + '" oninput="state.playerNames[3] = this.value" class="bg-transparent text-white font-bold text-lg w-full outline-none"/></div>' +
+                '<div class="bg-emerald-900/10 border border-emerald-900/50 p-3 rounded-xl shadow-lg">' +
+                    '<div class="text-center text-[10px] font-black mb-2 text-emerald-400 uppercase tracking-widest">Team 2</div>' +
+                    '<div class="flex items-center bg-emerald-900/30 p-2.5 rounded-lg mb-2 border border-emerald-800"><input type="text" placeholder="Player 3" value="' + escapeHTML(state.playerNames[2]) + '" oninput="state.playerNames[2] = this.value" class="bg-transparent text-white font-bold text-sm w-full outline-none"/></div>' +
+                    '<div class="flex items-center bg-emerald-900/30 p-2.5 rounded-lg border border-emerald-800"><input type="text" placeholder="Player 4" value="' + escapeHTML(state.playerNames[3]) + '" oninput="state.playerNames[3] = this.value" class="bg-transparent text-white font-bold text-sm w-full outline-none"/></div>' +
                 '</div>';
             } else {
                 for (var i = 0; i < state.numPlayers; i++) {
-                    namesHTML += '<div class="flex items-center bg-gray-800 p-3 rounded-xl mb-2 border border-gray-700">' +
-                        '<input type="text" placeholder="Player ' + (i + 1) + '" value="' + escapeHTML(state.playerNames[i]) + '" oninput="state.playerNames[' + i + '] = this.value" class="bg-transparent text-white font-bold text-lg w-full outline-none"/>' +
+                    namesHTML += '<div class="flex items-center bg-gray-800 p-2.5 rounded-xl mb-2 border border-gray-700">' +
+                        '<input type="text" placeholder="Player ' + (i + 1) + '" value="' + escapeHTML(state.playerNames[i]) + '" oninput="state.playerNames[' + i + '] = this.value" class="bg-transparent text-white font-bold text-sm w-full outline-none"/>' +
                     '</div>';
                 }
             }
 
-            return '<div class="flex-1 overflow-y-auto p-6 pb-20">' +
-                '<div class="mb-8"><label class="text-xs font-bold text-gray-500 mb-4 block uppercase tracking-widest">Select Game</label>' + modesHTML + '</div>' +
-                '<div class="mb-8"><label class="text-xs font-bold text-gray-500 mb-4 block uppercase tracking-widest">How many players?</label><div class="flex gap-3">' + numPlayersHTML + '</div></div>' +
-                '<div class="mb-8"><label class="text-xs font-bold text-gray-500 mb-4 block uppercase tracking-widest">Starting Hole (Shotgun Start)</label>' +
-                    '<div class="flex items-center justify-between bg-gray-900 p-3 rounded-2xl border border-gray-800 shadow-inner">' +
-                        '<button onclick="updateStartingHole(state.startingHole === 1 ? 18 : state.startingHole - 1)" class="w-16 h-16 bg-gray-800 rounded-xl text-white font-black text-3xl flex items-center justify-center hover:bg-gray-700 active:scale-95 transition-all shadow">-</button>' +
-                        '<div class="flex items-center gap-3 font-black text-3xl text-white"><span>⛳</span><span>' + state.startingHole + '</span></div>' +
-                        '<button onclick="updateStartingHole(state.startingHole === 18 ? 1 : state.startingHole + 1)" class="w-16 h-16 bg-gray-800 rounded-xl text-white font-black text-3xl flex items-center justify-center hover:bg-gray-700 active:scale-95 transition-all shadow">+</button>' +
+            return '<div class="flex-1 overflow-y-auto p-4 pb-20">' +
+                '<div class="mb-5"><label class="text-[10px] font-bold text-gray-500 mb-2 block uppercase tracking-widest">Select Game</label>' + modesHTML + '</div>' +
+                '<div class="mb-5"><label class="text-[10px] font-bold text-gray-500 mb-2 block uppercase tracking-widest">How many players?</label><div class="flex gap-2">' + numPlayersHTML + '</div></div>' +
+                '<div class="mb-5"><label class="text-[10px] font-bold text-gray-500 mb-2 block uppercase tracking-widest">Starting Hole</label>' +
+                    '<div class="flex items-center justify-between bg-gray-900 p-2 rounded-xl border border-gray-800 shadow-inner">' +
+                        '<button onclick="updateStartingHole(state.startingHole === 1 ? 18 : state.startingHole - 1)" class="w-12 h-12 bg-gray-800 rounded-lg text-white font-black text-xl flex items-center justify-center hover:bg-gray-700 active:scale-95 transition-all shadow">-</button>' +
+                        '<div class="flex items-center gap-2 font-black text-2xl text-white"><span>⛳</span><span>' + state.startingHole + '</span></div>' +
+                        '<button onclick="updateStartingHole(state.startingHole === 18 ? 1 : state.startingHole + 1)" class="w-12 h-12 bg-gray-800 rounded-lg text-white font-black text-xl flex items-center justify-center hover:bg-gray-700 active:scale-95 transition-all shadow">+</button>' +
                     '</div>' +
                 '</div>' +
-                '<div class="mb-8"><label class="text-xs font-bold text-gray-500 mb-4 block uppercase tracking-widest">Player Names</label>' + namesHTML + '</div>' +
-                '<button onclick="handleStartRound()" class="w-full bg-green-600 text-white py-5 rounded-2xl font-black text-xl shadow-[0_4px_14px_0_rgba(16,185,129,0.39)] active:scale-95 transition-transform">START ROUND</button>' +
+                '<div class="mb-5"><label class="text-[10px] font-bold text-gray-500 mb-2 block uppercase tracking-widest">Player Names</label>' + namesHTML + '</div>' +
+                '<button onclick="handleStartRound()" class="w-full bg-green-600 text-white py-4 rounded-xl font-black text-base shadow-lg active:scale-95 transition-transform">START ROUND</button>' +
             '</div>';
         }
 
@@ -159,14 +159,14 @@
 
             var wolfBoxHTML = '';
             if (state.gameMode === 'Wolf' && currentWolf) {
-                var partnersHTML = '<button onclick="state.wolfPartner = \'lone\'; render();" class="px-3 py-3 rounded-xl text-sm font-bold transition-colors ' + (state.wolfPartner === 'lone' ? 'bg-amber-600 text-white shadow-lg' : 'bg-gray-800 text-gray-400 border border-gray-700') + '">Lone Wolf</button>';
+                var partnersHTML = '<button onclick="state.wolfPartner = \'lone\'; render();" class="px-3 py-2 rounded-lg text-xs font-bold transition-colors ' + (state.wolfPartner === 'lone' ? 'bg-amber-600 text-white shadow-lg' : 'bg-gray-800 text-gray-400 border border-gray-700') + '">Lone Wolf</button>';
                 state.players.filter(function(p) { return p.id !== currentWolf.id; }).forEach(function(p) {
-                    partnersHTML += '<button onclick="state.wolfPartner = \'' + p.id + '\'; render();" class="px-3 py-3 rounded-xl text-sm font-bold transition-colors ' + (state.wolfPartner === p.id ? 'bg-amber-600 text-white shadow-lg' : 'bg-gray-800 text-gray-400 border border-gray-700') + '">Partner: ' + escapeHTML(p.name) + '</button>';
+                    partnersHTML += '<button onclick="state.wolfPartner = \'' + p.id + '\'; render();" class="px-3 py-2 rounded-lg text-xs font-bold transition-colors ' + (state.wolfPartner === p.id ? 'bg-amber-600 text-white shadow-lg' : 'bg-gray-800 text-gray-400 border border-gray-700') + '">Partner: ' + escapeHTML(p.name) + '</button>';
                 });
-                wolfBoxHTML = '<div class="bg-amber-900/30 border border-amber-800 p-4 rounded-2xl mb-6">' +
-                    '<div class="flex justify-center items-center gap-4 mb-4">' +
-                        '<h3 class="text-amber-400 font-black uppercase tracking-widest text-sm flex items-center gap-2"><span>🐺</span> ' + escapeHTML(currentWolf.name) + '\'s Choice</h3>' +
-                        (state.carryover > 0 ? '<span class="bg-red-600 text-white text-xs font-black px-2 py-1 rounded-md animate-pulse">+' + state.carryover + ' Carryover!</span>' : '') +
+                wolfBoxHTML = '<div class="bg-amber-900/30 border border-amber-800 p-3 rounded-xl mb-4">' +
+                    '<div class="flex justify-center items-center gap-3 mb-3">' +
+                        '<h3 class="text-amber-400 font-black uppercase tracking-widest text-xs flex items-center gap-1.5"><span>🐺</span> ' + escapeHTML(currentWolf.name) + '\'s Choice</h3>' +
+                        (state.carryover > 0 ? '<span class="bg-red-600 text-white text-[10px] font-black px-2 py-0.5 rounded animate-pulse">+' + state.carryover + ' Carry</span>' : '') +
                     '</div>' +
                     '<div class="grid grid-cols-2 gap-2">' + partnersHTML + '</div>' +
                 '</div>';
@@ -175,11 +175,11 @@
             var bbbBoxHTML = '';
             if (state.gameMode === 'Bingo Bango Bongo') {
                 var bbbTypes = ['bingo', 'bango', 'bongo'];
-                bbbBoxHTML = '<div class="bg-purple-900/30 border border-purple-800 p-4 rounded-2xl mb-6"><h3 class="text-white font-bold mb-4 text-center">Tap to Assign Points</h3>';
+                bbbBoxHTML = '<div class="bg-purple-900/30 border border-purple-800 p-3 rounded-xl mb-4"><h3 class="text-white font-bold text-xs mb-3 text-center">Tap to Assign Points</h3>';
                 bbbTypes.forEach(function(type) {
-                    bbbBoxHTML += '<div class="mb-4 last:mb-0"><label class="text-purple-300 uppercase text-xs font-black block mb-2 tracking-wider">' + type + '</label><div class="grid grid-cols-2 gap-2">';
+                    bbbBoxHTML += '<div class="mb-3 last:mb-0"><label class="text-purple-300 uppercase text-[10px] font-black block mb-1.5 tracking-wider">' + type + '</label><div class="grid grid-cols-2 gap-1.5">';
                     state.players.forEach(function(p) {
-                        bbbBoxHTML += '<button onclick="state.bbbWinners[\'' + type + '\'] = \'' + p.id + '\'; render();" class="px-3 py-3 rounded-xl text-sm font-bold transition-colors ' + (state.bbbWinners[type] === p.id ? 'bg-purple-600 text-white shadow-lg' : 'bg-gray-800 text-gray-400 border border-gray-700') + '">' + escapeHTML(p.name) + '</button>';
+                        bbbBoxHTML += '<button onclick="state.bbbWinners[\'' + type + '\'] = \'' + p.id + '\'; render();" class="px-2 py-2 rounded-lg text-xs font-bold transition-colors ' + (state.bbbWinners[type] === p.id ? 'bg-purple-600 text-white shadow-lg' : 'bg-gray-800 text-gray-400 border border-gray-700') + '">' + escapeHTML(p.name) + '</button>';
                     });
                     bbbBoxHTML += '</div></div>';
                 });
@@ -188,31 +188,31 @@
 
             var playersHTML = '';
             if (state.gameMode === 'Vegas' && state.numPlayers === 4) {
-                playersHTML = '<div class="bg-blue-900/10 border border-blue-900/50 p-3 rounded-2xl space-y-3 mb-4 shadow-lg">' +
-                    '<div class="flex justify-between items-center mb-1"><h3 class="text-blue-400 font-black uppercase text-xs tracking-widest">Team 1</h3>' +
-                    '<button onclick="state.vegasBirdies.team1 = !state.vegasBirdies.team1; render();" class="text-[10px] font-black uppercase px-2.5 py-1 rounded-lg border ' + (state.vegasBirdies.team1 ? 'bg-yellow-500 text-black border-yellow-400' : 'bg-gray-800 text-gray-400 border-gray-700') + '">' + (state.vegasBirdies.team1 ? '★ Birdie/Better' : 'Birdie?') + '</button></div>' +
+                playersHTML = '<div class="bg-blue-900/10 border border-blue-900/50 p-2.5 rounded-xl space-y-2.5 mb-3 shadow-lg">' +
+                    '<div class="flex justify-between items-center mb-1"><h3 class="text-blue-400 font-black uppercase text-[10px] tracking-widest">Team 1</h3>' +
+                    '<button onclick="state.vegasBirdies.team1 = !state.vegasBirdies.team1; render();" class="text-[9px] font-black uppercase px-2 py-0.5 rounded border ' + (state.vegasBirdies.team1 ? 'bg-yellow-500 text-black border-yellow-400' : 'bg-gray-800 text-gray-400 border-gray-700') + '">' + (state.vegasBirdies.team1 ? '★ Birdie+' : 'Birdie?') + '</button></div>' +
                     renderPlayerScoreRow(state.players[0]) + renderPlayerScoreRow(state.players[1]) +
                 '</div>' +
-                '<div class="bg-emerald-900/10 border border-emerald-900/50 p-3 rounded-2xl space-y-3 shadow-lg">' +
-                    '<div class="flex justify-between items-center mb-1"><h3 class="text-emerald-400 font-black uppercase text-xs tracking-widest">Team 2</h3>' +
-                    '<button onclick="state.vegasBirdies.team2 = !state.vegasBirdies.team2; render();" class="text-[10px] font-black uppercase px-2.5 py-1 rounded-lg border ' + (state.vegasBirdies.team2 ? 'bg-yellow-500 text-black border-yellow-400' : 'bg-gray-800 text-gray-400 border-gray-700') + '">' + (state.vegasBirdies.team2 ? '★ Birdie/Better' : 'Birdie?') + '</button></div>' +
+                '<div class="bg-emerald-900/10 border border-emerald-900/50 p-2.5 rounded-xl space-y-2.5 shadow-lg">' +
+                    '<div class="flex justify-between items-center mb-1"><h3 class="text-emerald-400 font-black uppercase text-[10px] tracking-widest">Team 2</h3>' +
+                    '<button onclick="state.vegasBirdies.team2 = !state.vegasBirdies.team2; render();" class="text-[9px] font-black uppercase px-2 py-0.5 rounded border ' + (state.vegasBirdies.team2 ? 'bg-yellow-500 text-black border-yellow-400' : 'bg-gray-800 text-gray-400 border-gray-700') + '">' + (state.vegasBirdies.team2 ? '★ Birdie+' : 'Birdie?') + '</button></div>' +
                     renderPlayerScoreRow(state.players[2]) + renderPlayerScoreRow(state.players[3]) +
                 '</div>';
             } else if (state.gameMode === 'Vegas' && state.numPlayers === 3) {
                 var rotatingIdx = (state.currentHole - 1) % 3;
-                playersHTML = '<div class="bg-indigo-900/20 border border-indigo-800 p-4 rounded-2xl mb-4 shadow-lg">' +
-                    '<div class="text-center text-xs font-black mb-3 text-indigo-400 uppercase tracking-widest">Rotating Partner: ' + escapeHTML(state.players[rotatingIdx].name) + '</div>';
+                playersHTML = '<div class="bg-indigo-900/20 border border-indigo-800 p-3 rounded-xl mb-3 shadow-lg">' +
+                    '<div class="text-center text-[10px] font-black mb-2 text-indigo-400 uppercase tracking-widest">Rotating Partner: ' + escapeHTML(state.players[rotatingIdx].name) + '</div>';
                 state.players.forEach(function(p, idx) {
                     var totalPts = p.points.reduce(function(a, b) { return a + (b || 0); }, 0);
                     var keyName = 'p' + (idx + 1);
-                    playersHTML += '<div class="flex items-center justify-between p-4 rounded-2xl border bg-gray-800 border-gray-700 mb-3 last:mb-0 shadow-inner">' +
-                        '<div class="flex flex-col"><div class="font-bold text-white text-lg flex items-center gap-2">' + escapeHTML(p.name) + (idx === rotatingIdx ? '<span class="text-[10px] bg-indigo-600 text-white px-2 py-0.5 rounded-md">Partner</span>' : '') + '</div><span class="text-xs font-black text-fuchsia-400">' + totalPts + ' Total Pts</span></div>' +
-                        '<div class="flex items-center gap-3">' +
-                            '<button onclick="state.vegasBirdies[\'' + keyName + '\'] = !state.vegasBirdies[\'' + keyName + '\']; render();" class="text-[10px] font-black uppercase px-2 py-1 rounded-lg border ' + (state.vegasBirdies[keyName] ? 'bg-yellow-500 text-black border-yellow-400' : 'bg-gray-900 text-gray-400 border-gray-700') + '">' + (state.vegasBirdies[keyName] ? '★ Birdie' : 'Birdie?') + '</button>' +
-                            '<div class="flex items-center gap-2 bg-gray-900 p-1.5 rounded-xl border border-gray-700">' +
-                                '<button onclick="adjustScore(\'' + p.id + '\', -1)" class="w-10 h-10 bg-gray-800 rounded-lg text-white font-black text-xl flex items-center justify-center hover:bg-gray-700">-</button>' +
-                                '<div class="w-6 text-center font-black text-xl text-white">' + state.tempScores[p.id] + '</div>' +
-                                '<button onclick="adjustScore(\'' + p.id + '\', 1)" class="w-10 h-10 bg-gray-800 rounded-lg text-white font-black text-xl flex items-center justify-center hover:bg-gray-700">+</button>' +
+                    playersHTML += '<div class="flex items-center justify-between p-3 rounded-xl border bg-gray-800 border-gray-700 mb-2 last:mb-0 shadow-inner">' +
+                        '<div class="flex flex-col"><div class="font-bold text-white text-sm flex items-center gap-1.5">' + escapeHTML(p.name) + (idx === rotatingIdx ? '<span class="text-[9px] bg-indigo-600 text-white px-1.5 py-0.5 rounded">Partner</span>' : '') + '</div><span class="text-[10px] font-black text-fuchsia-400">' + totalPts + ' Pts</span></div>' +
+                        '<div class="flex items-center gap-2">' +
+                            '<button onclick="state.vegasBirdies[\'' + keyName + '\'] = !state.vegasBirdies[\'' + keyName + '\']; render();" class="text-[9px] font-black uppercase px-1.5 py-1 rounded border ' + (state.vegasBirdies[keyName] ? 'bg-yellow-500 text-black border-yellow-400' : 'bg-gray-900 text-gray-400 border-gray-700') + '">' + (state.vegasBirdies[keyName] ? '★ Birdie' : 'Birdie?') + '</button>' +
+                            '<div class="flex items-center gap-1.5 bg-gray-900 p-1 rounded-lg border border-gray-700">' +
+                                '<button onclick="adjustScore(\'' + p.id + '\', -1)" class="w-8 h-8 bg-gray-800 rounded text-white font-black text-lg flex items-center justify-center hover:bg-gray-700">-</button>' +
+                                '<div class="w-5 text-center font-black text-base text-white">' + state.tempScores[p.id] + '</div>' +
+                                '<button onclick="adjustScore(\'' + p.id + '\', 1)" class="w-8 h-8 bg-gray-800 rounded text-white font-black text-lg flex items-center justify-center hover:bg-gray-700">+</button>' +
                             '</div>' +
                         '</div>' +
                     '</div>';
@@ -224,19 +224,19 @@
                 });
             }
 
-            return '<div class="flex flex-col h-full bg-gray-900">' +
-                '<div class="p-6 flex-1 overflow-y-auto">' +
-                    '<div class="flex items-center justify-between mb-6 bg-gray-800 p-4 rounded-2xl border border-gray-700 shadow-xl">' +
-                        '<button onclick="changeHole(state.currentHole === 1 ? 18 : state.currentHole - 1)" class="p-3 bg-gray-900 rounded-xl text-gray-400 hover:text-white hover:bg-gray-700 active:scale-95 transition-all shadow-inner"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>' +
-                        '<div class="text-center"><h2 class="text-gray-400 font-black tracking-widest text-sm uppercase mb-1">Hole</h2><div class="text-6xl font-black text-white leading-none">' + state.currentHole + '</div></div>' +
-                        '<button onclick="changeHole(state.currentHole === 18 ? 1 : state.currentHole + 1)" class="p-3 bg-gray-900 rounded-xl text-gray-400 hover:text-white hover:bg-gray-700 active:scale-95 transition-all shadow-inner"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>' +
+            return '<div class="flex flex-col h-full bg-gray-900 overflow-hidden">' +
+                '<div class="p-3 flex-1 overflow-y-auto">' +
+                    '<div class="flex items-center justify-between mb-4 bg-gray-800 p-3 rounded-xl border border-gray-700 shadow-xl">' +
+                        '<button onclick="changeHole(state.currentHole === 1 ? 18 : state.currentHole - 1)" class="p-2.5 bg-gray-900 rounded-lg text-gray-400 hover:text-white hover:bg-gray-700 active:scale-95 transition-all shadow-inner"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>' +
+                        '<div class="text-center"><h2 class="text-gray-400 font-black tracking-widest text-[10px] uppercase mb-0.5">Hole</h2><div class="text-4xl font-black text-white leading-none">' + state.currentHole + '</div></div>' +
+                        '<button onclick="changeHole(state.currentHole === 18 ? 1 : state.currentHole + 1)" class="p-2.5 bg-gray-900 rounded-lg text-gray-400 hover:text-white hover:bg-gray-700 active:scale-95 transition-all shadow-inner"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>' +
                     '</div>' +
-                    (state.gameMode === 'Stableford' ? '<div class="flex flex-col items-center mb-6 bg-gray-800/50 p-4 rounded-2xl border border-gray-700"><span class="text-gray-400 font-bold text-xs uppercase tracking-widest mb-3">Adjust Hole Par</span><div class="flex items-center gap-6 bg-gray-900 p-2 rounded-xl border border-gray-700 shadow-inner"><button onclick="adjustPar(-1)" class="w-12 h-12 bg-gray-800 rounded-lg text-white font-black text-2xl flex items-center justify-center hover:bg-gray-700">-</button><span class="w-12 text-center text-4xl text-white font-black">' + state.holePars[state.currentHole - 1] + '</span><button onclick="adjustPar(1)" class="w-12 h-12 bg-gray-800 rounded-lg text-white font-black text-2xl flex items-center justify-center hover:bg-gray-700">+</button></div></div>' : '') +
+                    (state.gameMode === 'Stableford' ? '<div class="flex flex-col items-center mb-4 bg-gray-800/50 p-3 rounded-xl border border-gray-700"><span class="text-gray-400 font-bold text-[10px] uppercase tracking-widest mb-2">Adjust Hole Par</span><div class="flex items-center gap-4 bg-gray-900 p-1.5 rounded-lg border border-gray-700 shadow-inner"><button onclick="adjustPar(-1)" class="w-10 h-10 bg-gray-800 rounded text-white font-black text-xl flex items-center justify-center hover:bg-gray-700">-</button><span class="w-10 text-center text-2xl text-white font-black">' + state.holePars[state.currentHole - 1] + '</span><button onclick="adjustPar(1)" class="w-10 h-10 bg-gray-800 rounded text-white font-black text-xl flex items-center justify-center hover:bg-gray-700">+</button></div></div>' : '') +
                     wolfBoxHTML + bbbBoxHTML +
-                    '<div class="space-y-3">' + playersHTML + '</div>' +
+                    '<div class="space-y-2">' + playersHTML + '</div>' +
                 '</div>' +
-                '<div class="p-4 bg-gray-900 border-t border-gray-800">' +
-                    '<button onclick="handleSaveHole()" class="w-full bg-blue-600 text-white py-5 rounded-2xl font-black text-xl shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] active:scale-95 transition-transform">' + saveButtonText + '</button>' +
+                '<div class="p-3 bg-gray-900 border-t border-gray-800 shrink-0">' +
+                    '<button onclick="handleSaveHole()" class="w-full bg-blue-600 text-white py-3.5 rounded-xl font-black text-base shadow-lg active:scale-95 transition-transform">' + saveButtonText + '</button>' +
                 '</div>' +
             '</div>';
         }
@@ -244,15 +244,15 @@
         function renderPlayerScoreRow(p) {
             var isWolf = state.gameMode === 'Wolf' && state.players[getWolfIndexForHole(state.currentHole, state.players)].id === p.id;
             var totalPts = p.points.reduce(function(a, b) { return a + (b || 0); }, 0);
-            return '<div class="flex items-center justify-between p-4 rounded-2xl border ' + (isWolf ? 'bg-amber-900/20 border-amber-700/50' : 'bg-gray-800 border-gray-700') + '">' +
+            return '<div class="flex items-center justify-between p-3 rounded-xl border ' + (isWolf ? 'bg-amber-900/20 border-amber-700/50' : 'bg-gray-800 border-gray-700') + '">' +
                 '<div class="flex flex-col">' +
-                    '<div class="font-bold text-white text-lg flex items-center gap-2">' + (isWolf ? '<span>🐺</span>' : '') + escapeHTML(p.name) + '</div>' +
-                    '<span class="text-xs font-black text-fuchsia-400">' + totalPts + ' Total Pts</span>' +
+                    '<div class="font-bold text-white text-sm flex items-center gap-1.5">' + (isWolf ? '<span>🐺</span>' : '') + escapeHTML(p.name) + '</div>' +
+                    '<span class="text-[10px] font-black text-fuchsia-400">' + totalPts + ' Pts</span>' +
                 '</div>' +
-                '<div class="flex items-center gap-4 bg-gray-900 p-1.5 rounded-xl border border-gray-700">' +
-                    '<button onclick="adjustScore(\'' + p.id + '\', -1)" class="w-12 h-12 bg-gray-800 rounded-lg text-white font-black text-2xl flex items-center justify-center hover:bg-gray-700 active:scale-95">-</button>' +
-                    '<div class="w-8 text-center font-black text-2xl text-white">' + state.tempScores[p.id] + '</div>' +
-                    '<button onclick="adjustScore(\'' + p.id + '\', 1)" class="w-12 h-12 bg-gray-800 rounded-lg text-white font-black text-2xl flex items-center justify-center hover:bg-gray-700 active:scale-95">+</button>' +
+                '<div class="flex items-center gap-3 bg-gray-900 p-1 rounded-lg border border-gray-700">' +
+                    '<button onclick="adjustScore(\'' + p.id + '\', -1)" class="w-10 h-10 bg-gray-800 rounded text-white font-black text-xl flex items-center justify-center hover:bg-gray-700 active:scale-95">-</button>' +
+                    '<div class="w-6 text-center font-black text-xl text-white">' + state.tempScores[p.id] + '</div>' +
+                    '<button onclick="adjustScore(\'' + p.id + '\', 1)" class="w-10 h-10 bg-gray-800 rounded text-white font-black text-xl flex items-center justify-center hover:bg-gray-700 active:scale-95">+</button>' +
                 '</div>' +
             '</div>';
         }
@@ -266,12 +266,12 @@
                 };
             });
 
-            var headersHTML = '<th class="p-3 text-left sticky top-0 left-0 z-30 bg-gray-900 border-r border-b border-gray-800 text-gray-500 font-black uppercase text-xs">Hole</th>';
+            var headersHTML = '<th class="p-2.5 text-left sticky top-0 left-0 z-30 bg-gray-900 border-r border-b border-gray-800 text-gray-500 font-black uppercase text-[10px]">Hole</th>';
             state.players.forEach(function(p) {
-                headersHTML += '<th class="p-3 text-center sticky top-0 z-20 bg-gray-900 border-b border-gray-800 font-bold text-white whitespace-nowrap min-w-[90px]">' +
+                headersHTML += '<th class="p-2.5 text-center sticky top-0 z-20 bg-gray-900 border-b border-gray-800 font-bold text-white whitespace-nowrap min-w-[80px]">' +
                     '<div class="flex flex-col items-center">' +
-                        '<span class="text-sm font-black">' + escapeHTML(p.name) + '</span>' +
-                        '<span class="text-xs font-black text-fuchsia-400 bg-purple-950/80 px-2 py-0.5 rounded-full mt-1 border border-purple-800">' + totals[p.id].pts + ' PTS</span>' +
+                        '<span class="text-xs font-black">' + escapeHTML(p.name) + '</span>' +
+                        '<span class="text-[9px] font-black text-fuchsia-400 bg-purple-950/80 px-1.5 py-0.5 rounded-full mt-0.5 border border-purple-800">' + totals[p.id].pts + ' PTS</span>' +
                     '</div>' +
                 '</th>';
             });
@@ -279,33 +279,33 @@
             var rowsHTML = '';
             for (var i = 0; i < 18; i++) {
                 rowsHTML += '<tr class="border-b border-gray-800/50 hover:bg-gray-800/20">' +
-                    '<td class="p-4 border-r border-gray-800 sticky left-0 z-10 bg-gray-900 font-black text-gray-400 text-sm flex flex-col gap-1 items-center justify-center"><span>' + (i + 1) + '</span>' + (state.gameMode === 'Stableford' ? '<span class="text-[10px] text-gray-600 bg-gray-800 inline-block px-1 rounded">P' + state.holePars[i] + '</span>' : '') + '</td>';
+                    '<td class="p-3 border-r border-gray-800 sticky left-0 z-10 bg-gray-900 font-black text-gray-400 text-xs flex flex-col gap-0.5 items-center justify-center"><span>' + (i + 1) + '</span>' + (state.gameMode === 'Stableford' ? '<span class="text-[9px] text-gray-600 bg-gray-800 inline-block px-1 rounded">P' + state.holePars[i] + '</span>' : '') + '</td>';
                 state.players.forEach(function(p) {
                     var sc = p.scores[i];
                     var pt = p.points[i];
                     var ptClass = pt > 0 ? 'text-fuchsia-400' : pt < 0 ? 'text-red-400' : 'text-gray-600';
-                    rowsHTML += '<td class="p-2 text-center align-middle">' +
+                    rowsHTML += '<td class="p-1.5 text-center align-middle">' +
                         '<div class="flex flex-col items-center justify-center">' +
-                            '<span class="text-gray-300 font-mono text-lg font-bold leading-none mt-1">' + (sc !== null ? sc : '-') + '</span>' +
-                            (sc !== null && pt !== null ? '<span class="text-[10px] font-black uppercase tracking-widest mt-1 ' + ptClass + '">' + (pt > 0 ? '+' : '') + pt + ' pts</span>' : '') +
+                            '<span class="text-gray-300 font-mono text-base font-bold leading-none mt-0.5">' + (sc !== null ? sc : '-') + '</span>' +
+                            (sc !== null && pt !== null ? '<span class="text-[9px] font-black uppercase tracking-widest mt-0.5 ' + ptClass + '">' + (pt > 0 ? '+' : '') + pt + ' pts</span>' : '') +
                         '</div>' +
                     '</td>';
                 });
                 rowsHTML += '</tr>';
             }
 
-            var totRow = '<tr class="row-tot"><td class="p-4 border-r border-gray-700 sticky left-0 z-10 bg-gray-800 text-gray-300">TOT</td>';
-            state.players.forEach(function(p) { totRow += '<td class="p-4 text-center text-xl text-yellow-400">' + (totals[p.id].strokes || '-') + '</td>'; });
+            var totRow = '<tr class="row-tot"><td class="p-3 border-r border-gray-700 sticky left-0 z-10 bg-gray-800 text-gray-300 text-xs">TOT</td>';
+            state.players.forEach(function(p) { totRow += '<td class="p-3 text-center text-lg text-yellow-400">' + (totals[p.id].strokes || '-') + '</td>'; });
             totRow += '</tr>';
 
-            var ptsRow = '<tr class="row-pts"><td class="p-4 border-r border-purple-800 sticky left-0 z-10 bg-purple-900 text-purple-300">PTS</td>';
-            state.players.forEach(function(p) { ptsRow += '<td class="p-4 text-center text-2xl text-fuchsia-300">' + totals[p.id].pts + '</td>'; });
+            var ptsRow = '<tr class="row-pts"><td class="p-3 border-r border-purple-800 sticky left-0 z-10 bg-purple-900 text-purple-300 text-xs">PTS</td>';
+            state.players.forEach(function(p) { ptsRow += '<td class="p-3 text-center text-xl text-fuchsia-300">' + totals[p.id].pts + '</td>'; });
             ptsRow += '</tr>';
 
-            return '<div class="flex flex-col h-full bg-gray-950">' +
-                '<div class="p-4 bg-gray-900 shrink-0 z-40 border-b border-gray-800 flex justify-between items-center shadow-lg relative">' +
-                    '<div><h2 class="text-xl font-black text-white">' + state.gameMode + '</h2><p class="text-gray-400 text-xs uppercase font-bold tracking-wider">Complete Scorecard</p></div>' +
-                    '<div class="flex items-center gap-3"><span class="text-gray-300 font-bold">' + state.numPlayers + ' Players</span></div>' +
+            return '<div class="flex flex-col h-full bg-gray-950 overflow-hidden">' +
+                '<div class="p-3 bg-gray-900 shrink-0 z-40 border-b border-gray-800 flex justify-between items-center shadow-lg relative">' +
+                    '<div><h2 class="text-sm font-black text-white">' + state.gameMode + '</h2><p class="text-gray-400 text-[9px] uppercase font-bold tracking-wider">Scorecard</p></div>' +
+                    '<div class="flex items-center gap-2"><span class="text-gray-300 text-xs font-bold">' + state.numPlayers + ' Players</span></div>' +
                 '</div>' +
                 '<div class="table-wrapper"><table><thead><tr>' + headersHTML + '</tr></thead><tbody>' + rowsHTML + totRow + ptsRow + '</tbody></table></div>' +
             '</div>';
@@ -315,21 +315,21 @@
             var html = '';
             if (state.showInfo) {
                 html += '<div class="absolute inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">' +
-                    '<div class="bg-gray-900 border border-gray-800 p-6 rounded-3xl w-full max-w-sm shadow-2xl">' +
-                        '<div class="flex justify-between items-start mb-4"><h3 class="text-white font-black text-xl">' + escapeHTML(state.showInfo) + '</h3><button onclick="state.showInfo = null; render();" class="text-gray-500 bg-gray-800 rounded-full p-1 hover:text-white"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>' +
-                        '<p class="text-gray-300 leading-relaxed font-medium mb-6">' + gameModeInstructions[state.showInfo] + '</p>' +
-                        '<button onclick="state.showInfo = null; render();" class="w-full bg-gray-800 text-white py-3 rounded-xl font-bold hover:bg-gray-700">Got it</button>' +
+                    '<div class="bg-gray-900 border border-gray-800 p-5 rounded-2xl w-full max-w-sm shadow-2xl">' +
+                        '<div class="flex justify-between items-start mb-3"><h3 class="text-white font-black text-base">' + escapeHTML(state.showInfo) + '</h3><button onclick="state.showInfo = null; render();" class="text-gray-500 bg-gray-800 rounded-full p-1 hover:text-white"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>' +
+                        '<p class="text-gray-300 text-xs leading-relaxed font-medium mb-4">' + gameModeInstructions[state.showInfo] + '</p>' +
+                        '<button onclick="state.showInfo = null; render();" class="w-full bg-gray-800 text-white py-2.5 rounded-xl font-bold text-xs hover:bg-gray-700">Got it</button>' +
                     '</div>' +
                 '</div>';
             }
             if (state.showHomeConfirm) {
                 html += '<div class="absolute inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">' +
-                    '<div class="bg-gray-900 border border-gray-800 p-6 rounded-3xl w-full max-w-sm shadow-2xl">' +
-                        '<h3 class="text-red-400 font-black text-xl mb-2">End Round?</h3>' +
-                        '<p class="text-gray-300 leading-relaxed font-medium mb-6">Are you sure you want to go back to the main menu? All current scores will be lost.</p>' +
-                        '<div class="flex gap-3">' +
-                            '<button onclick="state.showHomeConfirm = false; render();" class="flex-1 bg-gray-800 text-white py-3 rounded-xl font-bold">Cancel</button>' +
-                            '<button onclick="state.view = \'setup\'; state.showHomeConfirm = false; render();" class="flex-1 bg-red-600 text-white py-3 rounded-xl font-bold shadow-lg shadow-red-600/20">End Round</button>' +
+                    '<div class="bg-gray-900 border border-gray-800 p-5 rounded-2xl w-full max-w-sm shadow-2xl">' +
+                        '<h3 class="text-red-400 font-black text-base mb-1.5">End Round?</h3>' +
+                        '<p class="text-gray-300 text-xs leading-relaxed font-medium mb-4">Are you sure you want to go back to the main menu? All current scores will be lost.</p>' +
+                        '<div class="flex gap-2.5">' +
+                            '<button onclick="state.showHomeConfirm = false; render();" class="flex-1 bg-gray-800 text-white py-2.5 rounded-xl font-bold text-xs">Cancel</button>' +
+                            '<button onclick="state.view = \'setup\'; state.showHomeConfirm = false; render();" class="flex-1 bg-red-600 text-white py-2.5 rounded-xl font-bold text-xs shadow-lg">End Round</button>' +
                         '</div>' +
                     '</div>' +
                 '</div>';
@@ -451,7 +451,6 @@
                 var t2 = [state.players[2].id, state.players[3].id];
                 var getVegasScore = function(s1, s2, flip) {
                     var low = Math.min(s1, s2), high = Math.max(s1, s2);
-                    if (s1 >= 10 || s2 >= 10) { low = Math.min(s1, s2); high = Math.max(s1, s2); }
                     return flip ? high * 10 + low : low * 10 + high;
                 };
                 var bothBirdie = state.vegasBirdies.team1 && state.vegasBirdies.team2;
@@ -467,30 +466,20 @@
                 var pAId = state.players[rotatingIdx].id;
                 var otherPlayers = state.players.filter(function(_, idx) { return idx !== rotatingIdx; });
                 var pBId = otherPlayers[0].id, pCId = otherPlayers[1].id;
-                
                 var getVegasScore3 = function(s1, s2, flip) {
                     var low = Math.min(s1, s2), high = Math.max(s1, s2);
                     return flip ? high * 10 + low : low * 10 + high;
                 };
-
                 var bA = state.vegasBirdies['p' + (rotatingIdx + 1)];
                 var bB = state.vegasBirdies['p' + (state.players.findIndex(function(p) { return p.id === pBId; }) + 1)];
                 var bC = state.vegasBirdies['p' + (state.players.findIndex(function(p) { return p.id === pCId; }) + 1)];
-
                 var flipTeam1 = (bC && !bA && !bB);
                 var flipTeam2 = (bB && !bA && !bC);
-
                 var s1_3 = getVegasScore3(state.tempScores[pAId], state.tempScores[pBId], flipTeam1);
                 var s2_3 = getVegasScore3(state.tempScores[pAId], state.tempScores[pCId], flipTeam2);
                 var diff3 = Math.abs(s1_3 - s2_3);
-
-                if (s1_3 < s2_3) {
-                    pts[pAId] += diff3;
-                    pts[pBId] += diff3;
-                } else if (s2_3 < s1_3) {
-                    pts[pAId] += diff3;
-                    pts[pCId] += diff3;
-                }
+                if (s1_3 < s2_3) { pts[pAId] += diff3; pts[pBId] += diff3; }
+                else if (s2_3 < s1_3) { pts[pAId] += diff3; pts[pCId] += diff3; }
             } else if (state.gameMode === 'Wolf' && state.numPlayers >= 3) {
                 var wolfIdx = getWolfIndexForHole(state.currentHole, state.players);
                 var currentWolfId = state.players[wolfIdx].id;
