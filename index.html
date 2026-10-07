@@ -17,22 +17,31 @@
         .row-pts td { background: #581c87 !important; color: #f0abfc; font-weight: 900; }
     </style>
 </head>
-<body class="h-[100svh] overflow-hidden flex justify-center bg-black selection:bg-green-500/30">
+<body class="h-[100dvh] overflow-hidden flex justify-center bg-black selection:bg-green-500/30">
 
-    <div class="w-full max-w-md bg-[#030712] relative flex flex-col shadow-2xl h-[100svh] sm:h-[90vh] sm:my-auto sm:rounded-[2.5rem] sm:border-[8px] sm:border-gray-900 overflow-hidden" id="app">
+    <div class="w-full max-w-md bg-[#030712] relative flex flex-col shadow-2xl h-[100dvh] overflow-hidden" id="app">
         <!-- Application container rendered dynamically via script -->
     </div>
 
     <script>
-        const gameModeInstructions = {
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                var swCode = "self.addEventListener('install', function(e) { e.waitUntil(caches.open('golf-v1').then(function(cache) { return cache.addAll(['./']); })); }); self.addEventListener('fetch', function(e) { e.respondWith(caches.match(e.request).then(function(res) { return res || fetch(e.request); })); });";
+                var blob = new Blob([swCode], { type: 'text/javascript' });
+                var swUrl = URL.createObjectURL(blob);
+                navigator.serviceWorker.register(swUrl).catch(function(err) { console.log('SW registration failed', err); });
+            });
+        }
+
+        var gameModeInstructions = {
             'Bingo Bango Bongo': 'Points based game: 1 pt for first on green (Bingo), 1 pt for closest to pin (Bango), 1 pt for first in hole (Bongo).',
-            'Wolf': 'A rotation game (min 3 players) where one player is the "Wolf". The Wolf hits first, watches each player hit, and must pick their partner before the next player hits (or declare Lone Wolf right after hitting). For the final two holes with entries, the Wolf is selected by the lowest total accumulated points so far (with ties broken by natural rotation order).',
-            'Vegas': 'Supports 3 or 4 players. Team scores are combined (lowest score first, e.g., 4 and 5 = 45). Winning team gets the positive difference. If a team makes a birdie or better, the opposing team score combination is flipped unless both teams birdie.',
-            'Stableford': 'A scoring system that rewards good holes and forgives bad ones. Points: 1 for bogey, 2 for par, 3 for birdie, 4 for eagle, and 5 for a hole-in-one.',
-            'Nines': 'A 3-player game where 9 points are awarded per hole. Lowest score gets 5, middle gets 3, highest gets 1. Win the hole by 2+ strokes to sweep all 9 points!'
+            'Wolf': 'A rotation game (min 3 players). If Lone Wolf wins, they get 2 pts + carryover. If they lose, other players get 2 pts + carryover. If tie, carryover increases by 1.',
+            'Vegas': 'Teams combined. 4 players (2v2) or 3 players (rotating partner). Winning team gets positive difference. Birdie toggle flips opposing team score.',
+            'Stableford': 'Points: 1 for bogey, 2 for par, 3 for birdie, 4 for eagle, 5 for hole-in-one.',
+            'Nines': 'A 3-player game where 9 points are awarded per hole (5-3-1 distribution).'
         };
 
-        let state = {
+        var state = {
             view: 'setup', 
             gameMode: 'Bingo Bango Bongo',
             numPlayers: 2,
@@ -51,6 +60,28 @@
             showHomeConfirm: false
         };
 
+        function saveToStorage() {
+            try {
+                localStorage.setItem('golf_app_state', JSON.stringify(state));
+            } catch (e) {
+                console.error('Could not save to storage', e);
+            }
+        }
+
+        function loadFromStorage() {
+            try {
+                var saved = localStorage.getItem('golf_app_state');
+                if (saved) {
+                    var parsed = JSON.parse(saved);
+                    if (parsed && parsed.players && parsed.players.length > 0) {
+                        state = parsed;
+                    }
+                }
+            } catch (e) {
+                console.error('Could not load from storage', e);
+            }
+        }
+
         function escapeHTML(str) {
             return String(str).replace(/[&<>'"]/g, function(tag) {
                 return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[tag] || tag;
@@ -61,6 +92,7 @@
             var app = document.getElementById('app');
             if (!app) return;
             app.innerHTML = renderHeader() + renderMainContent() + renderModals();
+            saveToStorage();
         }
 
         function renderHeader() {
@@ -118,18 +150,18 @@
             if (state.gameMode === 'Vegas' && state.numPlayers === 4) {
                 namesHTML = '<div class="bg-blue-900/10 border border-blue-900/50 p-3 rounded-xl mb-3 shadow-lg">' +
                     '<div class="text-center text-[10px] font-black mb-2 text-blue-400 uppercase tracking-widest">Team 1</div>' +
-                    '<div class="flex items-center bg-blue-900/30 p-2.5 rounded-lg mb-2 border border-blue-800"><input type="text" placeholder="Player 1" value="' + escapeHTML(state.playerNames[0]) + '" oninput="state.playerNames[0] = this.value" class="bg-transparent text-white font-bold text-sm w-full outline-none"/></div>' +
-                    '<div class="flex items-center bg-blue-900/30 p-2.5 rounded-lg border border-blue-800"><input type="text" placeholder="Player 2" value="' + escapeHTML(state.playerNames[1]) + '" oninput="state.playerNames[1] = this.value" class="bg-transparent text-white font-bold text-sm w-full outline-none"/></div>' +
+                    '<div class="flex items-center bg-blue-900/30 p-2.5 rounded-lg mb-2 border border-blue-800"><input type="text" placeholder="Player 1" value="' + escapeHTML(state.playerNames[0]) + '" oninput="state.playerNames[0] = this.value; saveToStorage();" class="bg-transparent text-white font-bold text-sm w-full outline-none"/></div>' +
+                    '<div class="flex items-center bg-blue-900/30 p-2.5 rounded-lg border border-blue-800"><input type="text" placeholder="Player 2" value="' + escapeHTML(state.playerNames[1]) + '" oninput="state.playerNames[1] = this.value; saveToStorage();" class="bg-transparent text-white font-bold text-sm w-full outline-none"/></div>' +
                 '</div>' +
                 '<div class="bg-emerald-900/10 border border-emerald-900/50 p-3 rounded-xl shadow-lg">' +
                     '<div class="text-center text-[10px] font-black mb-2 text-emerald-400 uppercase tracking-widest">Team 2</div>' +
-                    '<div class="flex items-center bg-emerald-900/30 p-2.5 rounded-lg mb-2 border border-emerald-800"><input type="text" placeholder="Player 3" value="' + escapeHTML(state.playerNames[2]) + '" oninput="state.playerNames[2] = this.value" class="bg-transparent text-white font-bold text-sm w-full outline-none"/></div>' +
-                    '<div class="flex items-center bg-emerald-900/30 p-2.5 rounded-lg border border-emerald-800"><input type="text" placeholder="Player 4" value="' + escapeHTML(state.playerNames[3]) + '" oninput="state.playerNames[3] = this.value" class="bg-transparent text-white font-bold text-sm w-full outline-none"/></div>' +
+                    '<div class="flex items-center bg-emerald-900/30 p-2.5 rounded-lg mb-2 border border-emerald-800"><input type="text" placeholder="Player 3" value="' + escapeHTML(state.playerNames[2]) + '" oninput="state.playerNames[2] = this.value; saveToStorage();" class="bg-transparent text-white font-bold text-sm w-full outline-none"/></div>' +
+                    '<div class="flex items-center bg-emerald-900/30 p-2.5 rounded-lg border border-emerald-800"><input type="text" placeholder="Player 4" value="' + escapeHTML(state.playerNames[3]) + '" oninput="state.playerNames[3] = this.value; saveToStorage();" class="bg-transparent text-white font-bold text-sm w-full outline-none"/></div>' +
                 '</div>';
             } else {
                 for (var i = 0; i < state.numPlayers; i++) {
                     namesHTML += '<div class="flex items-center bg-gray-800 p-2.5 rounded-xl mb-2 border border-gray-700">' +
-                        '<input type="text" placeholder="Player ' + (i + 1) + '" value="' + escapeHTML(state.playerNames[i]) + '" oninput="state.playerNames[' + i + '] = this.value" class="bg-transparent text-white font-bold text-sm w-full outline-none"/>' +
+                        '<input type="text" placeholder="Player ' + (i + 1) + '" value="' + escapeHTML(state.playerNames[i]) + '" oninput="state.playerNames[' + i + '] = this.value; saveToStorage();" class="bg-transparent text-white font-bold text-sm w-full outline-none"/>' +
                     '</div>';
                 }
             }
@@ -326,10 +358,10 @@
                 html += '<div class="absolute inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">' +
                     '<div class="bg-gray-900 border border-gray-800 p-5 rounded-2xl w-full max-w-sm shadow-2xl">' +
                         '<h3 class="text-red-400 font-black text-base mb-1.5">End Round?</h3>' +
-                        '<p class="text-gray-300 text-xs leading-relaxed font-medium mb-4">Are you sure you want to go back to the main menu? All current scores will be lost.</p>' +
+                        '<p class="text-gray-300 text-xs leading-relaxed font-medium mb-4">Are you sure you want to go back to the main menu? All saved scores will be cleared.</p>' +
                         '<div class="flex gap-2.5">' +
                             '<button onclick="state.showHomeConfirm = false; render();" class="flex-1 bg-gray-800 text-white py-2.5 rounded-xl font-bold text-xs">Cancel</button>' +
-                            '<button onclick="state.view = \'setup\'; state.showHomeConfirm = false; render();" class="flex-1 bg-red-600 text-white py-2.5 rounded-xl font-bold text-xs shadow-lg">End Round</button>' +
+                            '<button onclick="localStorage.removeItem(\'golf_app_state\'); location.reload();" class="flex-1 bg-red-600 text-white py-2.5 rounded-xl font-bold text-xs shadow-lg">End Round</button>' +
                         '</div>' +
                     '</div>' +
                 '</div>';
@@ -484,15 +516,31 @@
                 var wolfIdx = getWolfIndexForHole(state.currentHole, state.players);
                 var currentWolfId = state.players[wolfIdx].id;
                 var activePartner = state.wolfPartner || state.players.filter(function(p) { return p.id !== currentWolfId; })[state.players.length - 2].id;
-                var wolfTeam = [currentWolfId];
-                if (activePartner !== 'lone') wolfTeam.push(activePartner);
-                var pack = state.players.filter(function(p) { return !wolfTeam.includes(p.id); }).map(function(p) { return p.id; });
-                var wolfScore = Math.min.apply(null, wolfTeam.map(function(id) { return state.tempScores[id]; }));
-                var packScore = Math.min.apply(null, pack.map(function(id) { return state.tempScores[id]; }));
-                var holeValue = 1 + state.carryover;
-                if (wolfScore < packScore) { wolfTeam.forEach(function(id) { pts[id] = (wolfTeam.length === 1 ? holeValue * 2 : holeValue); }); }
-                else if (packScore < wolfScore) { pack.forEach(function(id) { pts[id] = holeValue; }); }
-                else { resultIsTie = true; }
+                
+                if (activePartner === 'lone') {
+                    var wolfScore = state.tempScores[currentWolfId];
+                    var bestPackScore = Math.min.apply(null, state.players.filter(function(p) { return p.id !== currentWolfId; }).map(function(p) { return state.tempScores[p.id]; }));
+                    var totalStake = 2 + state.carryover;
+
+                    if (wolfScore < bestPackScore) {
+                        pts[currentWolfId] = totalStake;
+                    } else if (bestPackScore < wolfScore) {
+                        state.players.filter(function(p) { return p.id !== currentWolfId; }).forEach(function(p) {
+                            pts[p.id] = totalStake;
+                        });
+                    } else {
+                        resultIsTie = true;
+                    }
+                } else {
+                    var wolfTeam = [currentWolfId, activePartner];
+                    var pack = state.players.filter(function(p) { return !wolfTeam.includes(p.id); }).map(function(p) { return p.id; });
+                    var wolfScore = Math.min.apply(null, wolfTeam.map(function(id) { return state.tempScores[id]; }));
+                    var packScore = Math.min.apply(null, pack.map(function(id) { return state.tempScores[id]; }));
+                    var holeValue = 1 + state.carryover;
+                    if (wolfScore < packScore) { wolfTeam.forEach(function(id) { pts[id] = holeValue; }); }
+                    else if (packScore < wolfScore) { pack.forEach(function(id) { pts[id] = holeValue; }); }
+                    else { resultIsTie = true; }
+                }
             } else if (state.gameMode === 'Stableford') {
                 var currentPar = state.holePars[state.currentHole - 1];
                 state.players.forEach(function(p) {
@@ -541,7 +589,10 @@
             render();
         }
 
-        window.onload = render;
+        window.onload = function() {
+            loadFromStorage();
+            render();
+        };
     </script>
 </body>
 </html>
